@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 """
-License: MIT
-Copyright (c) 2019 - present AppSeed.us
+Developer - Ayaz Saiyed M.
+Deployed Code - June 4th, 2021
 """
 
 import os
@@ -48,7 +48,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "home"   # Route defined in app/urls.py
-LOGOUT_REDIRECT_URL = "home"  # Route defined in app/urls.py
+# LOGOUT_REDIRECT_URL = "home"  # Route defined in app/urls.py
 TEMPLATE_DIR = os.path.join(BASE_DIR, "core/templates")  # ROOT dir for templates
 
 TEMPLATES = [
@@ -125,5 +125,38 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
    os.path.join(BASE_DIR, 'static'),
 )
+
 #############################################################
 #############################################################
+
+
+
+
+#server code 
+
+# LANGUAGE_CODE = 'en-us'
+
+# TIME_ZONE = 'Asia/Kolkata'
+
+# USE_I18N = True
+
+# USE_L10N = True
+
+# USE_TZ = True
+
+# # SRC: https://devcenter.heroku.com/articles/django-assets
+
+# #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# # Static files (CSS, JavaScript, Images)
+# # https://docs.djangoproject.com/en/1.9/howto/static-files/
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# #STATIC_ROOT  = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = '/home/ubuntu/Yudibot-master/static/'
+# STATIC_URL = '/static/'
+# # Extra lookup directories for collectstatic to find static files
+# STATICFILES_DIRS = (
+#    os.path.join(BASE_DIR, 'static'),
+# )
+
+

@@ -14,7 +14,7 @@ urlpatterns = [
     re_path(r'^.*\.html', views.pages, name='pages'),
 	path('bot/', views.index_function, name='index_function'),
 	path('', views.index, name='index'),
-	path("jobapplicant/", views.jobapplicants, name="jobapplicants")
+	path("jobapplicant/", views.jobapplicants, name="jobapplicants"),
     # The home page
   
 

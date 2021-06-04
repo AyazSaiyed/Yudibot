@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 """
-License: MIT
-Copyright (c) 2019 - present AppSeed.us
+Developer - Ayaz Saiyed M.
+Deployed Code - June 4th, 2021
 """
 
 from django.contrib import admin

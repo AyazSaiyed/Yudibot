@@ -4,7 +4,7 @@
    Last update - April 22, 2021
    Department  - AI/ML
 '''
-
+# https://yudibot.pythonanywhere.com/bot/
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -23,7 +23,7 @@ from django.http import HttpResponse, JsonResponse
 from library.df_response_lib import *
 from library.facebook_template_lib import *
 import json
-import requests
+import requests 
 from .models import ClientEnquiries,JobApplicants
 # import facebook
 import time
@@ -45,6 +45,7 @@ from google.auth.transport.requests import Request
 from datetime import timedelta
 from oauth2client.service_account import ServiceAccountCredentials
 SCOPES = ['https://www.googleapis.com/auth/calendar']
+from django.views.decorators.cache import cache_control
 # import request
 
 import smtplib
@@ -54,14 +55,21 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 @login_required(login_url="/login/")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
-    context = ClientEnquiries.objects.all()
-    print(" Context details ",context)
-    print("length", len(context))
-    totalenquries = len(context)
-    # html_template = loader.get_template('tables.html')
-    # return HttpResponse(html_template.render(context, request))
-    return render(request,'tables.html',{'clientenquiries':context,'totalenquries':totalenquries})
+    if request.session.has_key('uid'):
+        x = request.session['uid']
+        print("session index ",x)
+        context = ClientEnquiries.objects.all()
+        print(" Context details ",context)
+        print("length", len(context))
+        totalenquries = len(context)
+        # html_template = loader.get_template('tables.html')
+        # return HttpResponse(html_template.render(context, request))
+        return render(request,'tables.html',{'clientenquiries':context,'totalenquries':totalenquries})
+    else:
+        print(" no id found")
+        return redirect('/login/')
 
 
 @login_required(login_url="/login/")
@@ -73,6 +81,11 @@ def jobapplicants(request):
     # html_template = loader.get_template('tables.html')
     # return HttpResponse(html_template.render(context, request))
     return render(request,'jobapplicants.html',{'jobapplicants':context,'totalcandidates':totalcandidates})
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def logout(request):
+    del request.session["uid"]
+    return redirect('/login/')
 
 @login_required(login_url="/login/")
 def pages(request):
@@ -99,13 +112,15 @@ def pages(request):
 
 
 # https://yudizsolutions.pythonanywhere.com/bot/
-# https://myaccount.google.com/lesssecureapps?
+# https://myaccount.google.com/lesssecureapps?  
 # https://accounts.google.com/DisplayUnlockCaptcha
 
 
 
 
-fromaddr = "yudizblog@gmail.com"
+# fromaddr = "yudizblog@gmail.com"
+fromaddr = "teamyudibot@gmail.com"
+
 toaddr = "saiyedayaz99@gmail.com"
 
     # instance of MIMEMultipart
@@ -126,7 +141,9 @@ s = smtplib.SMTP('smtp.gmail.com', 587)
     # start TLS for security
 s.starttls()
     # Authentication
-s.login(fromaddr, "Yudiz@1527")
+# s.login(fromaddr, "Yudiz@1527")
+s.login(fromaddr, "nopassword786*")
+
     # open the file to be sent
     # creates SMTP session
     # open the file to be sent
@@ -888,6 +905,7 @@ def index_function(request):
             return HttpResponse(response, content_type='application/json; charset=utf-8')
         else:
             raise Http404()
+
 
 
 def temp(request):
