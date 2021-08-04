@@ -9,7 +9,8 @@ from .views import login_view, register_user
 from app import views
 urlpatterns = [
     path('login/', login_view, name="login"),
-    path('register/', register_user, name="register"),
+    path('login/register/', register_user, name="register"),
+    path('login/register/register', register_user, name="register"),
 	path('logout/',views.logout,name="logout")
 
 

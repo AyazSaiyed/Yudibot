@@ -1,7 +1,7 @@
-# -*- encoding: utf-8 -*-
+5# -*- encoding: utf-8 -*-
 
 '''Developer   - Ayaz Saiyed M.
-   Last update - April 22, 2021
+   Last update - July 26, 2021
    Department  - AI/ML
 '''
 # https://yudibot.pythonanywhere.com/bot/
@@ -54,37 +54,119 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-@login_required(login_url="/login/")
+fromaddr = "teamyudibot@gmail.com"
+toaddr = "vishal@yudiz.com"
+
+reason = ""
+s = smtplib.SMTP('smtp.gmail.com', 587)
+s.starttls()
+s.login(fromaddr, "nopassword786*")
+sendto = ""
+def sendemail(reason, details, sendto):
+
+    print("Details received ",details)
+    if reason == "Job Application":
+        toaddr = "vishal@yudiz.com"
+        # attachment = open("./JobApplicantsList.xlsx", "rb")
+        msg = MIMEMultipart()
+        msg['From'] = fromaddr
+        msg['To'] = toaddr
+        msg['Subject'] = ' YudiBot Job Application Update 📌'
+        text = ''
+        body = ''
+        print("Sending Email")
+        try:
+            # body=" We have received a new Job application \n Review - https://chat.yudiz.com/ "
+            body = details
+            # p = MIMEBase('application', 'octet-stream')
+            # p.set_payload((attachment).read())
+            # filename = "JobApplicantsList.xlsx"
+            # encoders.encode_base64(p)
+            # p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+            # msg.attach(p)
+            msg.attach(MIMEText(body, 'plain'))
+            text = msg.as_string()
+            toaddrSales = 'vishal@yudiz.com'
+            s.sendmail(fromaddr, sendto, text)
+        except Exception as e:
+            print(" Error occured ",e)
+            pass
+    else:
+        toaddr = sendto
+        # attachment = open("./ClientEnquiry.xlsx", "rb")
+        msg = MIMEMultipart()
+        msg['From'] = fromaddr
+        msg['To'] = toaddr
+        msg['Subject'] = ' YudiBot Client enquriy Update 🔖'
+        text = ''
+        body = ''
+        print("Sending Email")
+        try:
+            body= details
+            p = MIMEBase('application', 'octet-stream')
+            # p.set_payload((attachment).read())
+            # filename = "ClientEnquiry.xlsx"
+            # encoders.encode_base64(p)
+            # p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+            # msg.attach(p)
+            msg.attach(MIMEText(body, 'plain'))
+            text = msg.as_string()
+            s.sendmail(fromaddr, sendto, text)
+        except Exception as e:
+            print(" Error occured ",e)
+            pass
+
+from django.core.paginator import Paginator
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
     if request.session.has_key('uid'):
         x = request.session['uid']
         print("session index ",x)
         context = ClientEnquiries.objects.all()
+        paginator = Paginator(context, 2)
         print(" Context details ",context)
+        page_number = request.GET.get('page')
+        # page_number = 1
+        page_obj = paginator.get_page(page_number)
+
         print("length", len(context))
         totalenquries = len(context)
+        import datetime
+        dateandtime = datetime.datetime.now()
+        showtime = dateandtime.strftime("%c")
         # html_template = loader.get_template('tables.html')
         # return HttpResponse(html_template.render(context, request))
-        return render(request,'tables.html',{'clientenquiries':context,'totalenquries':totalenquries})
+        return render(request,'tables.html',{'clientenquiries':context,'totalenquries':totalenquries,'page_obj':page_obj,'showtime':showtime})
     else:
         print(" no id found")
         return redirect('/login/')
 
 
-@login_required(login_url="/login/")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def jobapplicants(request):
     context = JobApplicants.objects.all()
+    paginator = Paginator(context, 2)
+    print(" Context details ",context)
+    page_number = request.GET.get('page')
+    # page_number = 1
+    page_obj = paginator.get_page(page_number)
     print(" Context details ",context)
     print("length", len(context))
     totalcandidates = len(context)
+    import datetime
+    dateandtime = datetime.datetime.now()
+    showtime = dateandtime.strftime("%c")
     # html_template = loader.get_template('tables.html')
     # return HttpResponse(html_template.render(context, request))
-    return render(request,'jobapplicants.html',{'jobapplicants':context,'totalcandidates':totalcandidates})
+    return render(request,'jobapplicants.html',{'jobapplicants':context,'totalcandidates':totalcandidates,'page_obj':page_obj,'showtime':showtime})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout(request):
-    del request.session["uid"]
+    try:
+        del request.session["uid"]
+    except:
+        pass
     return redirect('/login/')
 
 @login_required(login_url="/login/")
@@ -119,30 +201,30 @@ def pages(request):
 
 
 # fromaddr = "yudizblog@gmail.com"
-fromaddr = "teamyudibot@gmail.com"
+# fromaddr = "teamyudibot@gmail.com"
 
-toaddr = "saiyedayaz99@gmail.com"
+# toaddr = "vishal@yudiz.com"
 
-    # instance of MIMEMultipart
-msg = MIMEMultipart()
-    # storing the senders email address
-msg['From'] = fromaddr
-    # storing the receivers email address
-msg['To'] = toaddr
-    # storing the subject
-msg['Subject'] = "New update from Yudibot"
-msg['Subject1'] = "Client Enquiry"
+#     # instance of MIMEMultipart
+# msg = MIMEMultipart()
+#     # storing the senders email address
+# msg['From'] = fromaddr
+#     # storing the receivers email address
+# msg['To'] = toaddr
+#     # storing the subject
+# msg['Subject'] = "New update from Yudibot"
+# msg['Subject1'] = "Client Enquiry"
 
-    # string to store the body of the mail
-body = "Please review the attached sheet"
-msg.attach(MIMEText(body, 'plain'))
-s = smtplib.SMTP('smtp.gmail.com', 587)
+#     # string to store the body of the mail
+# body = "Please review the attached sheet"
+# msg.attach(MIMEText(body, 'plain'))
+# s = smtplib.SMTP('smtp.gmail.com', 587)
 
-    # start TLS for security
-s.starttls()
-    # Authentication
-# s.login(fromaddr, "Yudiz@1527")
-s.login(fromaddr, "nopassword786*")
+#     # start TLS for security
+# s.starttls()
+#     # Authentication
+# # s.login(fromaddr, "Yudiz@1527")
+# s.login(fromaddr, "nopassword786*")
 
     # open the file to be sent
     # creates SMTP session
@@ -155,7 +237,7 @@ uemail = []
 @csrf_exempt
 def index_function(request):
    if request.method == "POST":
-
+        reason = ""
         print("Method ",request.method)
 
         if request.body:
@@ -190,6 +272,7 @@ def index_function(request):
                 usersname = req.get('queryResult').get('parameters').get('nameemail')
                 email = req.get('queryResult').get('parameters').get('email')
                 requirement = req.get('queryResult').get('parameters').get('projectrequirement')
+                print(" Project requirement",requirement)
                 phone = req.get('queryResult').get('parameters').get('phone')
                 print("usersname ",usersname)
 
@@ -248,22 +331,34 @@ def index_function(request):
                 x = action
                 filename = "ClientEnquiry.xlsx"
                 attachment = open("./ClientEnquiry.xlsx", "rb")
+                reason = "Client enquriy"
+                details = " Hello team, We just received a new client enquiry, here are few details which yudibot gathered. \n Client's name "+usersname+", looked for "+strrequirement+". \n Client's Email - "+email+" \n Client's Contact no. - "+phone+" \n \n For more details review - https://chat.yudiz.com/"
                 try:
-                    p = MIMEBase('application', 'octet-stream')
-                    p.set_payload((attachment).read())
-                    encoders.encode_base64(p)
-                    p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-                        # attach the instance 'p' to instance 'msg'
-                    msg.attach(p)
-                    text = msg.as_string()
-                    toaddrSales = 'saiyedayaz9@gmail.com'
-                    s.sendmail(fromaddr, toaddrSales, text)
-                    print(" Client Enquiry has been sent successfully ")
-                    s.quit()
-                    return JsonResponse(reply, safe=False)
+                    sendto = "vishal@yudiz.com"
+                    print("Sending an email from function")
+                    sendemail(reason,details,sendto)
+                except Exception as e:
+                    print(e)
+                    pass
 
-                except:
-                    print(" Email Has Been Sent ")
+                # try:
+                #     p = MIMEBase('application', 'octet-stream')
+                #     p.set_payload((attachment).read())
+                #     encoders.encode_base64(p)
+                #     p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+                #         # attach the instance 'p' to instance 'msg'
+                #     msg.attach(p)
+                #     text = msg.as_string()
+                #     toaddrSales = 'vishal@yudiz.com'
+                #     # s.sendmail(fromaddr, toaddrSales, text)
+                #     sendemail()
+                #     # t1.start()
+                #     print(" Client Enquiry has been sent successfully ")
+                #     # s.quit()
+                #     return JsonResponse(reply, safe=False)
+
+                # except:
+                #     print(" Email Has Been Sent ")
 
 
                 return JsonResponse(reply, safe=False)
@@ -357,22 +452,13 @@ def index_function(request):
                 x = action
                 filename = "JobApplicantsList.xlsx"
                 attachment = open("./JobApplicantsList.xlsx", "rb")
+                reason = "Job Application"
+                details = " Hello HR, We just received a new job application for "+applyingfor+",\n Candidate's name is "+usersname+"\n Holding "+totalexperienceStr+" experience.\n Resume link - "+url+""
                 try:
-                    p = MIMEBase('application', 'octet-stream')
-                    p.set_payload((attachment).read())
-                    encoders.encode_base64(p)
-                    p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-                        # attach the instance 'p' to instance 'msg'
-                    msg.attach(p)
-                    text = msg.as_string()
-                    toaddrHR = 'hr@yudiz.com'
-                    s.sendmail(fromaddr, toaddr, text)
-                    print(" Email Has Been Sent ")
-                    s.quit()
-                    return JsonResponse(reply, safe=False)
-
+                    sendto = "teamyudibot@gmail.com"
+                    sendemail(reason,details,sendto)
                 except:
-                    print(" Email Has Been Sent ")
+                    pass
 
                 return JsonResponse(reply, safe=False)
 
@@ -439,23 +525,13 @@ def index_function(request):
                 x = action
                 filename = "JobApplicantsList.xlsx"
                 attachment = open("./JobApplicantsList.xlsx", "rb")
+                reason = "Job Application"
+                details = " Hello HR, We just received a new job application for "+applyingfor+",\n Candidate's name is "+usersname+"\n Holding "+totalexperienceStr+" experience.\n Resume link - "+url+""
                 try:
-                    p = MIMEBase('application', 'octet-stream')
-                    p.set_payload((attachment).read())
-                    encoders.encode_base64(p)
-                    p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-                        # attach the instance 'p' to instance 'msg'
-                    msg.attach(p)
-                    text = msg.as_string()
-                    toaddrHR = 'hr@yudiz.com'
-                    toaddrCTO = 'pankit@yudiz.com'
-                    s.sendmail(fromaddr, toaddr, text)
-                    print(" Email Has Been Sent ")
-                    s.quit()
-                    return JsonResponse(reply, safe=False)
-
+                    sendto = "teamyudibot@gmail.com"
+                    sendemail(reason,details,sendto)
                 except:
-                    print(" Email Not Sent ")
+                    pass
 
                 return JsonResponse(reply, safe=False)
 
@@ -531,21 +607,13 @@ def index_function(request):
                     x = action
                     filename = "JobApplicantsList.xlsx"
                     attachment = open("./JobApplicantsList.xlsx", "rb")
+                    reason = "Job Application"
+                    details = " Hello HR, We just received a new job application for "+applyingfor+",\n Candidate's name is "+usersname+"\n Holding "+totalexperienceStr+" experience. \n Resume link - "+AttachedResume+""
                     try:
-                        p = MIMEBase('application', 'octet-stream')
-                        p.set_payload((attachment).read())
-                        encoders.encode_base64(p)
-                        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-                            # attach the instance 'p' to instance 'msg'
-                        msg.attach(p)
-                        text = msg.as_string()
-                        toaddrSales = 'saiyedayaz9@gmail.com'
-                        s.sendmail(fromaddr, toaddrSales, text)
-                        print(" Resume received successfully ")
-                        s.quit()
-                        return JsonResponse(reply, safe=False)
+                        sendto = "teamyudibot@gmail.com"
+                        sendemail(reason,details,sendto)
                     except:
-                        print(" Email Has not been sent ")
+                        pass
                     return JsonResponse(reply, safe=False)
                 except:
                     AttachedResume = "No Resume Found"
@@ -600,21 +668,13 @@ def index_function(request):
                     x = action
                     filename = "JobApplicantsList.xlsx"
                     attachment = open("./JobApplicantsList.xlsx", "rb")
+                    reason = "Job Application"
+                    details = " Hello HR, We just received a new job application for "+applyingfor+",\n Candidate's name is "+usersname+"\n Holding "+totalexperienceStr+" experience."
                     try:
-                        p = MIMEBase('application', 'octet-stream')
-                        p.set_payload((attachment).read())
-                        encoders.encode_base64(p)
-                        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-                            # attach the instance 'p' to instance 'msg'
-                        msg.attach(p)
-                        text = msg.as_string()
-                        toaddrSales = 'saiyedayaz9@gmail.com'
-                        s.sendmail(fromaddr, toaddrSales, text)
-                        print(" Resume received successfully ")
-                        s.quit()
-                        return JsonResponse(reply, safe=False)
+                        sendto = "teamyudibot@gmail.com"
+                        sendemail(reason,details,sendto)
                     except:
-                        print(" Email Has not been sent ")
+                        pass
                     return JsonResponse(reply, safe=False)
                 # AttachedResume = url
 
@@ -916,6 +976,6 @@ def temp(request):
 # ----------------------------------
 
 '''Developer   - Ayaz Saiyed M.
-   Last update - April 8, 2021
+   Last update - July 26, 2021
    Department  - AI/ML
 '''
